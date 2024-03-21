@@ -8,20 +8,15 @@ def initialize_camera(camera_index:int = 0) -> cv2.VideoCapture:
     # cam.set(cv2.CAP_PROP_FPS, 60)
     return cam
 
+def capture_camera(cam: cv2.VideoCapture,hands) -> Any:
+    _ , img = cam.read() 
+    img = cv2.flip(img,1)
+    rgb_img = convert_img(img,'rgb')
 
-def capture_camera(cam_state: bool) -> Any:
-    cam = initialize_camera()
-    hands = initialize_mediapipe()
-
-    while cam_state:
-        _ , img = cam.read() 
-        img = cv2.flip(img,1)
-        rgb_img = convert_img(img,'rgb')
-
-        hands_landmarks = hands.process(rgb_img)
-        print(hands_landmarks.multi_hand_landmarks)
-        cv2.imshow("Image", img)
-        cv2.waitKey(1)
+    hands_landmarks = hands.process(rgb_img)
+    print(hands_landmarks.multi_hand_landmarks)
+    cv2.imshow("Image", img)
+    cv2.waitKey(1)
 
 
 def convert_img(img: Any, img_format: str ) -> Any:
@@ -39,9 +34,13 @@ def initialize_mediapipe() -> Any:
     return hands
 
 
-def main() -> None:
-    capture_camera(True)
+def main(capture_state: bool) -> None:
+    cam = initialize_camera()
+    hands = initialize_mediapipe()
+
+    while (capture_state):
+        capture_camera(cam,hands)
 
 
 if __name__ == "__main__":
-    main()
+    main(True)
