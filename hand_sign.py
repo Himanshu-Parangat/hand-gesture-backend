@@ -1,25 +1,26 @@
 from typing import Any
 import cv2
-import mediapipe  
+import mediapipe
+import numpy
 
 
 def initialize_camera(camera_index:int = 0) -> cv2.VideoCapture:
-    captured = cv2.VideoCapture(camera_index)
+    camera_feed = cv2.VideoCapture(camera_index)
     # cam.set(cv2.CAP_PROP_FPS, 60)
-    return captured
+    return camera_feed
 
 
-def capture_frame(camera_feed: cv2.VideoCapture) -> Any :
+def capture_frame(camera_feed: cv2.VideoCapture) -> numpy.ndarray :
     _ , inverted_frames = camera_feed.read() 
     frames = cv2.flip(inverted_frames,1)
     return frames
 
 
-def convert_format(img: Any, img_format: str ) -> Any:
+def convert_format(frames: Any, img_format: str ) -> Any:
     if img_format.lower() == 'bgr':
-        return cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        return cv2.cvtColor(frames, cv2.COLOR_RGB2BGR)
     elif img_format.lower() == 'rgb':
-        return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        return cv2.cvtColor(frames, cv2.COLOR_BGR2RGB)
     else:
         raise ValueError("Unsupported img_format. expect either 'bgr' or 'rgb' ")
 
@@ -34,20 +35,24 @@ def initialize_mediapipe() -> mediapipe.solutions.hands.Hands:
     return mp_hands
 
 
+def mediapipe_landmark(camera_feed: cv2.VideoCapture,hands) -> Any:
+    bgr_frames = capture_frame(camera_feed)
 
-def main(capture_state: bool) -> None:
-    capture = initialize_camera() 
-    hands = initialize_mediapipe()
+    rgb_frames = convert_format(bgr_frames,'rgb')
+    hands_landmarks = hands.process(rgb_frames)
+    
+    return hands_landmarks,bgr_frames
 
-    while (capture_state):
+
+def main(process_cycle: bool) -> None:
+    camera_feed = initialize_camera() 
+    mp_hands = initialize_mediapipe()
+
+    while process_cycle:
+        result_frames,bgr_frames = mediapipe_landmark(camera_feed,mp_hands)
         
-        cam = capture_frame(capture)
-
-        rgb_img = convert_format(cam,'rgb')
-        hands_landmarks = hands.process(rgb_img)
-        
-        print(hands_landmarks.multi_hand_landmarks)
-        cv2.imshow("Image", cam)
+        print(result_frames.multi_hand_landmarks)
+        cv2.imshow("Image", bgr_frames)
         cv2.waitKey(1)
 
 if __name__ == "__main__":
