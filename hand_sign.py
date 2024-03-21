@@ -35,13 +35,22 @@ def initialize_mediapipe() -> mediapipe.solutions.hands.Hands:
     return mp_hands
 
 
-def mediapipe_landmark(camera_feed: cv2.VideoCapture,hands) -> Any:
+def mediapipe_landmark(camera_feed: cv2.VideoCapture,mp_hands) -> Any:
     bgr_frames = capture_frame(camera_feed)
 
     rgb_frames = convert_format(bgr_frames,'rgb')
-    hands_landmarks = hands.process(rgb_frames)
+    hands_landmarks = mp_hands.process(rgb_frames)
     
     return hands_landmarks,bgr_frames
+
+
+def draw_hand_landmarks(bgr_frames: numpy.ndarray, result_frames: Any) -> numpy.ndarray:
+    mpDraw = mediapipe.solutions.drawing_utils
+    if result_frames.multi_hand_landmarks:
+        for handLms in result_frames.multi_hand_landmarks:
+            mpDraw.draw_landmarks(bgr_frames, handLms, mediapipe.solutions.hands.HAND_CONNECTIONS)
+    return bgr_frames
+
 
 
 def main(process_cycle: bool) -> None:
@@ -49,10 +58,10 @@ def main(process_cycle: bool) -> None:
     mp_hands = initialize_mediapipe()
 
     while process_cycle:
-        result_frames,bgr_frames = mediapipe_landmark(camera_feed,mp_hands)
-        
-        print(result_frames.multi_hand_landmarks)
-        cv2.imshow("Image", bgr_frames)
+        landmarked_frames,bgr_frames = mediapipe_landmark(camera_feed,mp_hands)
+        connected_landmarked_frames = draw_hand_landmarks(bgr_frames,landmarked_frames)
+
+        cv2.imshow("Image", connected_landmarked_frames)
         cv2.waitKey(1)
 
 if __name__ == "__main__":
