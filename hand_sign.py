@@ -78,6 +78,14 @@ class Camera:
         frames = cv2.flip(inverted_frames, 1)
         return frames
 
+    @staticmethod
+    def convert_frames_to_BRG(input_frames) -> numpy.ndarray:
+        return cv2.cvtColor(input_frames, cv2.COLOR_BGR2RGB)
+
+    @staticmethod
+    def convert_frames_to_RGB(input_frames) -> numpy.ndarray:
+        return cv2.cvtColor(input_frames, cv2.COLOR_RGB2BGR)
+
 
 def show_root_window(display_frames, window_name: str = "frames"):
     cv2.imshow(window_name, display_frames)
@@ -92,11 +100,10 @@ def main():
     process_cycle = True
     webcam = Camera()
     camera_feed = webcam.camera_feed
-
-
     while process_cycle:
         # display_frames = webcam.capture_raw_fliped_frames()
-        display_frames = webcam.capture_frame()
+        # display_frames = webcam.capture_frame()
+        display_frames = webcam.convert_frames_to_BRG(webcam.capture_frame())
 
         process_cycle = show_root_window(display_frames)
 
