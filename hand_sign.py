@@ -5,58 +5,27 @@ import numpy
 import time
 
 
-class landmark:
-    def __init__(self,max_num_hands: int = 2):
+class Landmark:
+    def __init__(self, max_num_hands: int = 2):
         self.mp_hands = mediapipe.solutions.hands.Hands(
             static_image_mode=False,
             max_num_hands=max_num_hands,
             min_detection_confidence=0.5,
             min_tracking_confidence=0.5
         )
+        self.mpDraw = mediapipe.solutions.drawing_utils
 
+    @staticmethod
+    def get_mediapipe_landmark(camera_feed: cv2.VideoCapture| numpy.ndarray , mp_hands) -> Any:
+        hands_landmarks = mp_hands.process(camera_feed)
 
-# def mediapipe_landmark(camera_feed: cv2.VideoCapture, mp_hands) -> Any:
-#     bgr_frames = capture_frame(camera_feed)
-#
-#     rgb_frames = convert_format(bgr_frames, 'rgb')
-#     hands_landmarks = mp_hands.process(rgb_frames)
-#
-#     return hands_landmarks, bgr_frames
+        return hands_landmarks
 
-# def initialize_mediapipe() -> mediapipe.solutions.hands.Hands:
-#     mp_hands = mediapipe.solutions.hands.Hands(
-#         static_image_mode=False,
-#         max_num_hands=2,
-#         min_detection_confidence=0.5,
-#         min_tracking_confidence=0.5
-#     )
-#     return mp_hands
-
-
-
-
-# def draw_hand_landmarks(bgr_frames: numpy.ndarray, result_frames: Any) -> numpy.ndarray:
-#     mpDraw = mediapipe.solutions.drawing_utils
-#     if result_frames.multi_hand_landmarks:
-#         for handLms in result_frames.multi_hand_landmarks:
-#             mpDraw.draw_landmarks(bgr_frames, handLms, mediapipe.solutions.hands.HAND_CONNECTIONS)
-#     return bgr_frames
-
-
-# def main(process_cycle: bool) -> None:
-#     camera_feed = initialize_camera()
-#     mp_hands = initialize_mediapipe()
-#
-#     previous_time = time.time()
-#     while process_cycle:
-#         landmarked_frames, bgr_frames = mediapipe_landmark(camera_feed, mp_hands)
-#         connected_landmarked_frames = draw_hand_landmarks(bgr_frames, landmarked_frames)
-#
-#         fps, previous_time = calculate_fps(previous_time)
-#         print(f"fps : {fps}")
-#
-#         cv2.imshow("Image", connected_landmarked_frames)
-#         cv2.waitKey(1)
+    def draw_mediapipe_landmark(self, input_bgr_frames: numpy.ndarray, result_frames: Any):
+        if result_frames.multi_hand_landmarks:
+            for handLms in result_frames.multi_hand_landmarks:
+                self.mpDraw.draw_landmarks(input_bgr_frames, handLms, mediapipe.solutions.hands.HAND_CONNECTIONS)
+        return input_bgr_frames
 
 
 class Camera:
@@ -74,11 +43,11 @@ class Camera:
         return frames
 
     @staticmethod
-    def convert_frames_to_BRG(input_frames) -> numpy.ndarray:
+    def convert_frames_to_RGB(input_frames) -> numpy.ndarray:
         return cv2.cvtColor(input_frames, cv2.COLOR_BGR2RGB)
 
     @staticmethod
-    def convert_frames_to_RGB(input_frames) -> numpy.ndarray:
+    def convert_frames_to_BGR(input_frames) -> numpy.ndarray:
         return cv2.cvtColor(input_frames, cv2.COLOR_RGB2BGR)
 
 
@@ -101,15 +70,18 @@ def main():
     process_cycle = True
     webcam = Camera()
     camera_feed = webcam.camera_feed
+
+    landmark = Landmark()
+    # fps initialise time
     previous_time = time.time()
 
     while process_cycle:
-        # display_frames = webcam.capture_raw_flipped_frames()
-        # display_frames = webcam.capture_frame()
-        display_frames = webcam.convert_frames_to_BRG(webcam.capture_frame())
+        frames = webcam.capture_frame()
+        rgb_frames = webcam.convert_frames_to_RGB(frames)
+        landmark_obj = Landmark.get_mediapipe_landmark(rgb_frames, landmark.mp_hands)
 
-        process_cycle = show_root_window(display_frames)
-
+        result_frames = landmark.draw_mediapipe_landmark(frames, landmark_obj)
+        process_cycle = show_root_window(result_frames)
         fps, previous_time = calculate_fps(previous_time)
         print(f"fps : {fps}")
 
