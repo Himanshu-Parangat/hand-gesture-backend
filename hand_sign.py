@@ -21,24 +21,62 @@ class Camera:
     def __init__(self):
         self.camera_index = 0
         self.camera_feed = cv2.VideoCapture(self.camera_index)
-        self.inverted_frames = None
 
-    def capture_raw_flipped_frames(self) -> numpy.ndarray:
-        self.inverted_frames = self.camera_feed.read()[1]
-        return self.inverted_frames
+    def capture_frame(self, orientation=0, flip_direction="horizontally", frame_format="BGR"):
+        frames = self.camera_feed.read()[1]
+        frames = self._rotate_frame(frames, orientation)
+        frames = self._flip_frames(frames, flip_direction)
+        frames = self._change_color_space(frames, frame_format)
+        processed_frames = frames
 
-    def capture_frame(self) -> numpy.ndarray:
-        inverted_frames = self.capture_raw_flipped_frames()
-        frames = cv2.flip(inverted_frames, 1)
-        return frames
-
-    @staticmethod
-    def convert_frames_to_RGB(input_frames) -> numpy.ndarray:
-        return cv2.cvtColor(input_frames, cv2.COLOR_BGR2RGB)
+        return processed_frames
 
     @staticmethod
-    def convert_frames_to_BGR(input_frames) -> numpy.ndarray:
-        return cv2.cvtColor(input_frames, cv2.COLOR_RGB2BGR)
+    def _rotate_frame(frames, orientation):
+        if orientation == "clockwise":
+            rotated_frames = cv2.rotate(frames, cv2.ROTATE_90_CLOCKWISE)
+        elif orientation == "180":
+            rotated_frames = cv2.rotate(frames, cv2.ROTATE_180)
+        elif orientation == "counter-clockwise":
+            rotated_frames = cv2.rotate(frames, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        else:
+            rotated_frames = frames
+
+        return rotated_frames
+
+    @staticmethod
+    def _flip_frames(frames, flip_direction):
+        if flip_direction == "horizontally":
+            flipped_frames = cv2.flip(frames, 1)
+        elif flip_direction == "vertically":
+            flipped_frames = cv2.flip(frames, 0)
+        elif flip_direction == "both":
+            flipped_frames = cv2.flip(frames, -1)
+        else:
+            flipped_frames = frames
+
+        return flipped_frames
+
+    @staticmethod
+    def _change_color_space(frames, frame_format):
+        if frame_format == "BGR":
+            converted_frames = frames
+        elif frame_format == "RGB":
+            converted_frames = cv2.cvtColor(frames, cv2.COLOR_BGR2RGB)
+        elif frame_format == "HSV":
+            converted_frames = cv2.cvtColor(frames, cv2.COLOR_BGR2HSV)
+        elif frame_format == "HLS":
+            converted_frames = cv2.cvtColor(frames, cv2.COLOR_BGR2HLS)
+        elif frame_format == "Gray":
+            converted_frames = cv2.cvtColor(frames, cv2.COLOR_BGR2GRAY)
+        else:
+            converted_frames = frames
+
+        return converted_frames
+
+    @staticmethod
+    def _empty_frames(self):
+        return "no frames are read, check your device"
 
 
 class Landmark:
@@ -83,16 +121,14 @@ def main():
     process_cycle = True
     webcam = Camera()
     landmark = Landmark()
-    # fps initialise time
     previous_time = time.time()
 
     while process_cycle:
         frames = webcam.capture_frame()
-        rgb_frames = webcam.convert_frames_to_RGB(frames)
-        landmark_obj = Landmark.get_mediapipe_landmark(rgb_frames, landmark.mp_hands)
-
-        result_frames = landmark.draw_mediapipe_landmark(frames, landmark_obj)
-        process_cycle = show_root_window(result_frames)
+        # landmark_obj = Landmark.get_mediapipe_landmark(frames, landmark.mp_hands)
+        #
+        # result_frames = landmark.draw_mediapipe_landmark(frames, landmark_obj)
+        process_cycle = show_root_window(frames)
         fps, previous_time = calculate_fps(previous_time)
         print(f"fps : {fps}")
 
