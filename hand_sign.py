@@ -1,19 +1,17 @@
-from typing import Any
+from typing import Any, Dict
 import cv2
 import mediapipe
 import numpy
 import time
 
-config = {
+config: dict[str, bool | float | str | int] = {
     'use_static_mode': False,  # live-mode
+    'max_hands_count': 2,
     'min_detection_threshold': 0.5,
     'min_tracking_threshold': 0.5,
-    'default_camera_index': 0,
-    'camera_flip_direction': 1,
-    'available_camera_flip_directions': ["top", "bottom", "left", "right"],
-    'available_frame_formats': ["BGR", "RGB"],
-    'max_hands_count': 2,
-    'visualizations_to_show': ["mask", "dots", "Connections", "outline"]
+    'orientation': "0",  # "None" "clockwise" "180"  "counter-clockwise"
+    'flip_direction': "horizontally",  # "None" "horizontally" "vertically" "both"
+    'frame_format': "BGR"  # "None" "BGR" "RGB" "HSV" "HLS" "Gray"
 }
 
 
@@ -22,7 +20,7 @@ class Camera:
         self.camera_index = 0
         self.camera_feed = cv2.VideoCapture(self.camera_index)
 
-    def capture_frame(self, orientation=0, flip_direction="horizontally", frame_format="BGR"):
+    def capture_frame(self, orientation, flip_direction, frame_format):
         frames = self.camera_feed.read()[1]
         frames = self._rotate_frame(frames, orientation)
         frames = self._flip_frames(frames, flip_direction)
@@ -120,14 +118,10 @@ def show_root_window(display_frames, window_name: str = "frames"):
 def main():
     process_cycle = True
     webcam = Camera()
-    landmark = Landmark()
     previous_time = time.time()
 
     while process_cycle:
-        frames = webcam.capture_frame()
-        # landmark_obj = Landmark.get_mediapipe_landmark(frames, landmark.mp_hands)
-        #
-        # result_frames = landmark.draw_mediapipe_landmark(frames, landmark_obj)
+        frames = webcam.capture_frame(config['orientation'], config['flip_direction'], config['frame_format'])
         process_cycle = show_root_window(frames)
         fps, previous_time = calculate_fps(previous_time)
         print(f"fps : {fps}")
