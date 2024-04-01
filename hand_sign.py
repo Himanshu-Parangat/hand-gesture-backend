@@ -3,15 +3,42 @@ import cv2
 import mediapipe
 import numpy
 import time
+from enum import Enum
 
-config: dict[str, bool | float | str | int] = {
+
+class FrameOrientation(Enum):
+    ''' possible value: "None" "clockwise" "180"  "counter-clockwise" '''
+    CLOCKWISE = "clockwise"
+    COUNTER_CLOCKWISE = "counter_clockwise"
+    ZERO_DEGREE = "0"
+    ONE_EIGHTY_DEGREE = "180"
+
+
+class FrameFlip(Enum):
+    ''' possible value:  "None" "horizontally" "vertically" "both"'''
+    NONE: str = "None"
+    HORIZONTALLY: str = "horizontally"
+    VERTICALLY: str = "vertically"
+    BOTH: str = "both"
+
+
+class FrameFormate(Enum):
+    ''' possible value: "None" "BGR" "RGB" "HSV" "HLS" "Gray"'''
+    BGR: str = "BGR"
+    RGB: str = "RGB"
+    HSV: str = "HSV"
+    HLS: str = "HLS"
+    GRAY: str = "GRAY"
+
+
+config: dict[str, bool | float | FrameOrientation | FrameFlip | FrameFormate] = {
     'use_static_mode': False,  # live-mode
     'max_hands_count': 2,
     'min_detection_threshold': 0.5,
     'min_tracking_threshold': 0.5,
-    'orientation': "0",  # "None" "clockwise" "180"  "counter-clockwise"
-    'flip_direction': "horizontally",  # "None" "horizontally" "vertically" "both"
-    'frame_format': "BGR"  # "None" "BGR" "RGB" "HSV" "HLS" "Gray"
+    'orientation': FrameOrientation.ZERO_DEGREE.value,
+    'flip_direction': FrameFlip.HORIZONTALLY.value,
+    'frame_format': FrameFormate.BGR.value
 }
 
 
@@ -65,7 +92,7 @@ class Camera:
             converted_frames = cv2.cvtColor(frames, cv2.COLOR_BGR2HSV)
         elif frame_format == "HLS":
             converted_frames = cv2.cvtColor(frames, cv2.COLOR_BGR2HLS)
-        elif frame_format == "Gray":
+        elif frame_format == "GRAY":
             converted_frames = cv2.cvtColor(frames, cv2.COLOR_BGR2GRAY)
         else:
             converted_frames = frames
