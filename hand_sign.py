@@ -1,13 +1,10 @@
-from typing import Any, Dict
 import cv2
-import mediapipe
-import numpy
 import time
 from enum import Enum
 
-
 class FrameOrientation(Enum):
-    ''' possible value: "None" "clockwise" "180"  "counter-clockwise" '''
+    """possible value: "None" "clockwise" "180"  "counter-clockwise" """
+
     CLOCKWISE = "clockwise"
     COUNTER_CLOCKWISE = "counter_clockwise"
     ZERO_DEGREE = "0"
@@ -15,7 +12,8 @@ class FrameOrientation(Enum):
 
 
 class FrameFlip(Enum):
-    ''' possible value:  "None" "horizontally" "vertically" "both"'''
+    """possible value:  "None" "horizontally" "vertically" "both" """
+
     NONE: str = "None"
     HORIZONTALLY: str = "horizontally"
     VERTICALLY: str = "vertically"
@@ -23,7 +21,8 @@ class FrameFlip(Enum):
 
 
 class FrameFormate(Enum):
-    ''' possible value: "None" "BGR" "RGB" "HSV" "HLS" "Gray"'''
+    """possible value: "None" "BGR" "RGB" "HSV" "HLS" "Gray" """
+
     BGR: str = "BGR"
     RGB: str = "RGB"
     HSV: str = "HSV"
@@ -31,14 +30,14 @@ class FrameFormate(Enum):
     GRAY: str = "GRAY"
 
 
-config: dict[str, bool | float | FrameOrientation | FrameFlip | FrameFormate] = {
-    'use_static_mode': False,  # live-mode
-    'max_hands_count': 2,
-    'min_detection_threshold': 0.5,
-    'min_tracking_threshold': 0.5,
-    'orientation': FrameOrientation.ZERO_DEGREE.value,
-    'flip_direction': FrameFlip.HORIZONTALLY.value,
-    'frame_format': FrameFormate.BGR.value
+config = {
+    "use_static_mode": False,  # live-mode
+    "max_hands_count": 2,
+    "min_detection_threshold": 0.5,
+    "min_tracking_threshold": 0.5,
+    "orientation": FrameOrientation.ZERO_DEGREE.value,
+    "flip_direction": FrameFlip.HORIZONTALLY.value,
+    "frame_format": FrameFormate.RGB.value,
 }
 
 
@@ -100,31 +99,8 @@ class Camera:
         return converted_frames
 
     @staticmethod
-    def _empty_frames(self):
+    def _empty_frames():
         return "no frames are read, check your device"
-
-
-class Landmark:
-    def __init__(self):
-        self.mp_hands = mediapipe.solutions.hands.Hands(
-            static_image_mode=config['use_static_mode'],
-            max_num_hands=config['max_hands_count'],
-            min_detection_confidence=config['min_detection_threshold'],
-            min_tracking_confidence=config['min_tracking_threshold']
-        )
-        self.mpDraw = mediapipe.solutions.drawing_utils
-
-    @staticmethod
-    def get_mediapipe_landmark(camera_feed: cv2.VideoCapture | numpy.ndarray, mp_hands) -> Any:
-        hands_landmarks = mp_hands.process(camera_feed)
-
-        return hands_landmarks
-
-    def draw_mediapipe_landmark(self, input_bgr_frames: numpy.ndarray, result_frames: Any):
-        if result_frames.multi_hand_landmarks:
-            for handLms in result_frames.multi_hand_landmarks:
-                self.mpDraw.draw_landmarks(input_bgr_frames, handLms, mediapipe.solutions.hands.HAND_CONNECTIONS)
-        return input_bgr_frames
 
 
 def calculate_fps(previous_time: float) -> tuple[int, float]:
@@ -136,7 +112,7 @@ def calculate_fps(previous_time: float) -> tuple[int, float]:
 def show_root_window(display_frames, window_name: str = "frames"):
     cv2.imshow(window_name, display_frames)
     key = cv2.waitKey(1) & 0xFF
-    if key == ord('q'):
+    if key == ord("q"):
         cv2.destroyAllWindows()
         return False
     return True
@@ -148,7 +124,7 @@ def main():
     previous_time = time.time()
 
     while process_cycle:
-        frames = webcam.capture_frame(config['orientation'], config['flip_direction'], config['frame_format'])
+        frames = webcam.capture_frame(config["orientation"], config["flip_direction"], config["frame_format"])
         process_cycle = show_root_window(frames)
         fps, previous_time = calculate_fps(previous_time)
         print(f"fps : {fps}")
