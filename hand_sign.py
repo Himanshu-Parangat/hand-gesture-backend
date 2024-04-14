@@ -1,6 +1,7 @@
 import cv2
 import time
 from enum import Enum
+import mediapipe as mp 
 
 class FrameOrientation(Enum):
     """possible value: "None" "clockwise" "180"  "counter-clockwise" """
@@ -37,7 +38,7 @@ config = {
     "min_tracking_threshold": 0.5,
     "orientation": FrameOrientation.ZERO_DEGREE.value,
     "flip_direction": FrameFlip.HORIZONTALLY.value,
-    "frame_format": FrameFormate.RGB.value,
+    "frame_format": FrameFormate.BGR.value,
 }
 
 
@@ -47,13 +48,21 @@ class Camera:
         self.camera_feed = cv2.VideoCapture(self.camera_index)
 
     def capture_frame(self, orientation, flip_direction, frame_format):
-        frames = self.camera_feed.read()[1]
-        frames = self._rotate_frame(frames, orientation)
-        frames = self._flip_frames(frames, flip_direction)
-        frames = self._change_color_space(frames, frame_format)
-        processed_frames = frames
 
-        return processed_frames
+        isFrameRead = self.camera_feed.read()[0]
+
+        if isFrameRead:
+
+            frames = self.camera_feed.read()[1]
+            frames = self._rotate_frame(frames, orientation)
+            frames = self._flip_frames(frames, flip_direction)
+            frames,rgb_frames = self._change_color_space(frames, frame_format)
+            processed_frames = frames
+            processed_frames_rgb = rgb_frames
+
+            return processed_frames, processed_frames_rgb
+        else:
+            self._empty_frames()
 
     @staticmethod
     def _rotate_frame(frames, orientation):
@@ -83,6 +92,9 @@ class Camera:
 
     @staticmethod
     def _change_color_space(frames, frame_format):
+
+        converted_frames_rgb = cv2.cvtColor(frames, cv2.COLOR_BGR2RGB)
+
         if frame_format == "BGR":
             converted_frames = frames
         elif frame_format == "RGB":
@@ -96,11 +108,11 @@ class Camera:
         else:
             converted_frames = frames
 
-        return converted_frames
+        return converted_frames, converted_frames_rgb
 
     @staticmethod
     def _empty_frames():
-        return "no frames are read, check your device"
+       raise RuntimeError("No frames were read from the camera. Please check your device.")
 
 
 def calculate_fps(previous_time: float) -> tuple[int, float]:
@@ -123,8 +135,31 @@ def main():
     webcam = Camera()
     previous_time = time.time()
 
+    mp_hands = mp.solutions.hands
+    hands = mp_hands.Hands(
+        static_image_mode=config["use_static_mode"],
+        max_num_hands=config["max_hands_count"],
+        min_detection_confidence=config["min_detection_threshold"],
+        min_tracking_confidence=config["min_tracking_threshold"],
+    )
+    mp_drawing = mp.solutions.drawing_utils
+
     while process_cycle:
-        frames = webcam.capture_frame(config["orientation"], config["flip_direction"], config["frame_format"])
+        frames,rgb_frames = webcam.capture_frame(config["orientation"], config["flip_direction"], config["frame_format"])
+
+        
+        hand_landmarks = hands.process(rgb_frames)
+
+        if hand_landmarks.multi_hand_landmarks:
+            for hand_landmarks in hand_landmarks.multi_hand_landmarks:
+                mp_drawing.draw_landmarks(
+                    frames,
+                    hand_landmarks,
+                    mp_hands.HAND_CONNECTIONS,
+                    mp_drawing.DrawingSpec(color=(255, 255, 255), thickness=2, circle_radius=2),
+                    mp_drawing.DrawingSpec(color=(0, 0, 255), thickness=2)
+                )
+
         process_cycle = show_root_window(frames)
         fps, previous_time = calculate_fps(previous_time)
         print(f"fps : {fps}")
