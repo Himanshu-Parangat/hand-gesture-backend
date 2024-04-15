@@ -8,6 +8,8 @@ class Camera:
     def __init__(self):
         self.camera_index = 0
         self.camera_feed = cv2.VideoCapture(self.camera_index)
+        self.camera_feed.set(3, 640) 
+        self.camera_feed.set(4, 480)
 
     def capture_frame(self, orientation, flip_direction, frame_format):
 
@@ -106,6 +108,8 @@ def main():
     )
     mp_drawing = mp.solutions.drawing_utils
 
+    pointer_history = []
+
     while process_cycle:
         frames,rgb_frames = webcam.capture_frame(config["orientation"], config["flip_direction"], config["frame_format"])
 
@@ -114,13 +118,32 @@ def main():
 
         if hand_landmarks.multi_hand_landmarks:
             for hand_landmarks in hand_landmarks.multi_hand_landmarks:
+
+                index_finger_tip = hand_landmarks.landmark[8]
+                print(f"Index Finger Tip: x={index_finger_tip.x}, y={index_finger_tip.y}, z={index_finger_tip.z}")
+
+
+                rgb_frame = frames
+                pointer_history.append((index_finger_tip.x, index_finger_tip.y))
+
+                if len(pointer_history) > 50:
+                    pointer_history.pop(0)
+
+                for i in range(1, len(pointer_history)):
+                    cv2.line(rgb_frame,
+                            (int(pointer_history[i-1][0] * rgb_frame.shape[1]),
+                             int(pointer_history[i-1][1] * rgb_frame.shape[0])),
+                            (int(pointer_history[i][0] * rgb_frame.shape[1]),
+                             int(pointer_history[i][1] * rgb_frame.shape[0])),
+                            (0, 255, 0), 2)
                 mp_drawing.draw_landmarks(
                     frames,
                     hand_landmarks,
                     mp_hands.HAND_CONNECTIONS,
-                    mp_drawing.DrawingSpec(color=(255, 255, 255), thickness=2, circle_radius=2),
-                    mp_drawing.DrawingSpec(color=(0, 0, 255), thickness=2)
+                    mp_drawing.DrawingSpec(color=(255, 190, 191), thickness=2, circle_radius=2),
+                    mp_drawing.DrawingSpec(color=(232, 183, 255), thickness=2)
                 )
+
 
         process_cycle = show_root_window(frames)
         fps, previous_time = calculate_fps(previous_time)
