@@ -79,6 +79,56 @@ class Camera:
        raise RuntimeError("No frames were read from the camera. Please check your device.")
 
 
+class HandTracker:
+    def __init__(self):
+        self.hand_solution = mp.solutions.hands
+        self.hands = self.hand_solution.Hands(
+            static_image_mode=config["use_static_mode"],
+            max_num_hands=config["max_hands_count"],
+            min_detection_confidence=config["min_detection_threshold"],
+            min_tracking_confidence=config["min_tracking_threshold"],
+        )
+        self.drawing_solution = mp.solutions.drawing_utils
+
+        self.pointer_history = []
+
+    def landmark(self, rgb_frames, frames):
+        original_frames = frames.copy() 
+        hand_landmarks = self.hands.process(rgb_frames)
+
+        if hand_landmarks.multi_hand_landmarks:
+            for hand_landmarks in hand_landmarks.multi_hand_landmarks:
+
+                index_finger_tip = hand_landmarks.landmark[8]
+                print(f"Index Finger Tip: x={index_finger_tip.x}, y={index_finger_tip.y}, z={index_finger_tip.z}")
+
+
+                rgb_frame = frames
+                self.pointer_history.append((index_finger_tip.x, index_finger_tip.y))
+
+                if len(self.pointer_history) > 50:
+                    self.pointer_history.pop(0)
+
+                for i in range(1, len(self.pointer_history)):
+                    cv2.line(rgb_frame,
+                            (int(self.pointer_history[i-1][0] * rgb_frame.shape[1]),
+                             int(self.pointer_history[i-1][1] * rgb_frame.shape[0])),
+                            (int(self.pointer_history[i][0] * rgb_frame.shape[1]),
+                             int(self.pointer_history[i][1] * rgb_frame.shape[0])),
+                            (0, 255, 0), 2)
+                self.drawing_solution.draw_landmarks(
+                    frames,
+                    hand_landmarks,
+                    self.hand_solution.HAND_CONNECTIONS,
+                    self.drawing_solution.DrawingSpec(color=(255, 190, 191), thickness=2, circle_radius=2),
+                    self.drawing_solution.DrawingSpec(color=(232, 183, 255), thickness=2)
+                )
+
+
+                
+        return frames, original_frames
+
+
 def calculate_fps(previous_time: float) -> tuple[int, float]:
     current_time = time.time()
     fps = int(1 / (current_time - previous_time))
@@ -96,54 +146,15 @@ def show_root_window(display_frames, window_name: str = "frames"):
 
 def main():
     process_cycle = True
-    webcam = Camera()
     previous_time = time.time()
-
-    mp_hands = mp.solutions.hands
-    hands = mp_hands.Hands(
-        static_image_mode=config["use_static_mode"],
-        max_num_hands=config["max_hands_count"],
-        min_detection_confidence=config["min_detection_threshold"],
-        min_tracking_confidence=config["min_tracking_threshold"],
-    )
-    mp_drawing = mp.solutions.drawing_utils
-
-    pointer_history = []
+    webcam = Camera()
+    handtracker = HandTracker() 
 
     while process_cycle:
         frames,rgb_frames = webcam.capture_frame(config["orientation"], config["flip_direction"], config["frame_format"])
 
-        
-        hand_landmarks = hands.process(rgb_frames)
-
-        if hand_landmarks.multi_hand_landmarks:
-            for hand_landmarks in hand_landmarks.multi_hand_landmarks:
-
-                index_finger_tip = hand_landmarks.landmark[8]
-                print(f"Index Finger Tip: x={index_finger_tip.x}, y={index_finger_tip.y}, z={index_finger_tip.z}")
-
-
-                rgb_frame = frames
-                pointer_history.append((index_finger_tip.x, index_finger_tip.y))
-
-                if len(pointer_history) > 50:
-                    pointer_history.pop(0)
-
-                for i in range(1, len(pointer_history)):
-                    cv2.line(rgb_frame,
-                            (int(pointer_history[i-1][0] * rgb_frame.shape[1]),
-                             int(pointer_history[i-1][1] * rgb_frame.shape[0])),
-                            (int(pointer_history[i][0] * rgb_frame.shape[1]),
-                             int(pointer_history[i][1] * rgb_frame.shape[0])),
-                            (0, 255, 0), 2)
-                mp_drawing.draw_landmarks(
-                    frames,
-                    hand_landmarks,
-                    mp_hands.HAND_CONNECTIONS,
-                    mp_drawing.DrawingSpec(color=(255, 190, 191), thickness=2, circle_radius=2),
-                    mp_drawing.DrawingSpec(color=(232, 183, 255), thickness=2)
-                )
-
+        frames,original_frames = handtracker.landmark(rgb_frames, frames)
+         
 
         process_cycle = show_root_window(frames)
         fps, previous_time = calculate_fps(previous_time)
