@@ -88,45 +88,88 @@ class HandTracker:
             min_detection_confidence=config["min_detection_threshold"],
             min_tracking_confidence=config["min_tracking_threshold"],
         )
-        self.drawing_solution = mp.solutions.drawing_utils
 
-        self.pointer_history = []
+    def landmark(self, rgb_frames):
+        marked_frame = self._process_landmark(rgb_frames)
+        marked_frame = self._iterate_hands(marked_frame)
 
-    def landmark(self, rgb_frames, frames):
-        original_frames = frames.copy() 
+        if marked_frame is not None:
+            marked_frame = self._get_landmark(marked_frame, "INDEX_FINGER_TIP")
+
+        return marked_frame
+
+
+    def _process_landmark(self,rgb_frames):
         hand_landmarks = self.hands.process(rgb_frames)
+        return hand_landmarks
 
+
+    @staticmethod
+    def _iterate_hands(hand_landmarks):
         if hand_landmarks.multi_hand_landmarks:
-            for hand_landmarks in hand_landmarks.multi_hand_landmarks:
+            for landmarks_coord in hand_landmarks.multi_hand_landmarks:
+                return landmarks_coord
 
-                index_finger_tip = hand_landmarks.landmark[8]
-                print(f"Index Finger Tip: x={index_finger_tip.x}, y={index_finger_tip.y}, z={index_finger_tip.z}")
+    @staticmethod
+    def _get_landmark(hand_landmarks, marks):
+        landmarks = {
+            "WRIST": hand_landmarks.landmark[0],
+
+            "THUMB_CMC": hand_landmarks.landmark[1],
+            "THUMB_MCP": hand_landmarks.landmark[2],
+            "THUMB_IP": hand_landmarks.landmark[3],
+            "THUMB_TIP": hand_landmarks.landmark[4],
+
+            "INDEX_FINGER_MCP": hand_landmarks.landmark[5],
+            "INDEX_FINGER_PIP": hand_landmarks.landmark[6],
+            "INDEX_FINGER_DIP": hand_landmarks.landmark[7],
+            "INDEX_FINGER_TIP": hand_landmarks.landmark[8],
+
+            "MIDDLE_FINGER_MCP": hand_landmarks.landmark[9],
+            "MIDDLE_FINGER_PIP": hand_landmarks.landmark[10],
+            "MIDDLE_FINGER_DIP": hand_landmarks.landmark[11],
+            "MIDDLE_FINGER_TIP": hand_landmarks.landmark[12],
+
+            "RING_FINGER_MCP": hand_landmarks.landmark[13],
+            "RING_FINGER_PIP": hand_landmarks.landmark[14],
+            "RING_FINGER_DIP": hand_landmarks.landmark[15],
+            "RING_FINGER_TIP": hand_landmarks.landmark[16],
+
+            "PINKY_FINGER_MCP": hand_landmarks.landmark[17],
+            "PINKY_FINGER_PIP": hand_landmarks.landmark[18],
+            "PINKY_FINGER_DIP": hand_landmarks.landmark[19],
+            "PINKY_FINGER_TIP": hand_landmarks.landmark[20]
+        }
+
+        requested_landmarks = {marks: landmarks[marks]}
+
+        return requested_landmarks 
+
+    @staticmethod
+    def _get_coordinates(hand_landmarks, frames):
+        """ normalized frames by frames size"""
+
+        x_coordinates = int(hand_landmarks.x * frames.shape[1])
+        y_coordinates = int(hand_landmarks.y * frames.shape[0])
+
+        return x_coordinates, y_coordinates
 
 
-                rgb_frame = frames
-                self.pointer_history.append((index_finger_tip.x, index_finger_tip.y))
+class LandmarksDraw:
+    def __init__(self):
+        self.drawing_solution = mp.solutions.draw_landmarks
+        self.hand_connections = self.hand_solution.HAND_CONNECTIONS
 
-                if len(self.pointer_history) > 50:
-                    self.pointer_history.pop(0)
-
-                for i in range(1, len(self.pointer_history)):
-                    cv2.line(rgb_frame,
-                            (int(self.pointer_history[i-1][0] * rgb_frame.shape[1]),
-                             int(self.pointer_history[i-1][1] * rgb_frame.shape[0])),
-                            (int(self.pointer_history[i][0] * rgb_frame.shape[1]),
-                             int(self.pointer_history[i][1] * rgb_frame.shape[0])),
-                            (0, 255, 0), 2)
-                self.drawing_solution.draw_landmarks(
-                    frames,
-                    hand_landmarks,
-                    self.hand_solution.HAND_CONNECTIONS,
-                    self.drawing_solution.DrawingSpec(color=(255, 190, 191), thickness=2, circle_radius=2),
-                    self.drawing_solution.DrawingSpec(color=(232, 183, 255), thickness=2)
-                )
-
-
-                
-        return frames, original_frames
+    def draw_landmarks(self, frames, hand_landmarks):
+        drawn_frame = frames.copy()
+        self.drawing_solution.draw_landmarks(
+            drawn_frame,
+            hand_landmarks,
+            self.hand_connections,
+            self.drawing_solution.DrawingSpec(color=(255, 255, 255), thickness=2, circle_radius=2),
+            self.drawing_solution.DrawingSpec(color=(0, 0, 0), thickness=2)
+        )
+        return drawn_frame
 
 
 def calculate_fps(previous_time: float) -> tuple[int, float]:
@@ -153,12 +196,16 @@ def main():
     while process_cycle:
         frames,rgb_frames = webcam.capture_frame(config["orientation"], config["flip_direction"], config["frame_format"])
 
-        frames,original_frames = handtracker.landmark(rgb_frames, frames)
-         
+        # frames,original_frames = handtracker.process_landmark(rgb_frames, frames)
+        # l,r = handtracker.landmark(rgb_frames)
+        #  
+        # print(f"Left: {l}", f"Right: {r}")
+        marks = handtracker.landmark(rgb_frames)
+        print(marks)
 
         process_cycle = show_root_window(frames)
         fps, previous_time = calculate_fps(previous_time)
-        print(f"fps : {fps}")
+        # print(f"fps : {fps}")
 
 
 if __name__ == "__main__":
