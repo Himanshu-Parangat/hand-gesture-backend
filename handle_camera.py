@@ -49,14 +49,19 @@ class Camera:
 
     @staticmethod
     def _flip_frames(frames, flip_direction):
-        if flip_direction == "horizontally":
-            flipped_frames = cv2.flip(frames, 1)
-        elif flip_direction == "vertically":
-            flipped_frames = cv2.flip(frames, 0)
-        elif flip_direction == "both":
-            flipped_frames = cv2.flip(frames, -1)
-        else:
+
+        flip_map = {
+            "horizontally": 1,
+            "vertically": 0,
+            "both": -1
+        }
+
+        flip_code = flip_map.get(flip_direction)
+
+        if flip_code is None:
             flipped_frames = frames
+        else:
+            flipped_frames = cv2.flip(frames, flip_code)
 
         return flipped_frames
 
