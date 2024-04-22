@@ -60,25 +60,26 @@ class Camera:
 
         return flipped_frames
 
+
     @staticmethod
     def _change_color_space(frames, frame_format):
 
         converted_frames_rgb = cv2.cvtColor(frames, cv2.COLOR_BGR2RGB)
 
-        if frame_format == "BGR":
-            converted_frames = frames
-        elif frame_format == "RGB":
-            converted_frames = cv2.cvtColor(frames, cv2.COLOR_BGR2RGB)
-        elif frame_format == "HSV":
-            converted_frames = cv2.cvtColor(frames, cv2.COLOR_BGR2HSV)
-        elif frame_format == "HLS":
-            converted_frames = cv2.cvtColor(frames, cv2.COLOR_BGR2HLS)
-        elif frame_format == "GRAY":
-            converted_frames = cv2.cvtColor(frames, cv2.COLOR_BGR2GRAY)
+        color_space_map = {
+            "RGB": converted_frames_rgb,
+            "HSV": cv2.cvtColor(frames, cv2.COLOR_BGR2HSV),
+            "HLS": cv2.cvtColor(frames, cv2.COLOR_BGR2HLS),
+            "GRAY": cv2.cvtColor(frames, cv2.COLOR_BGR2GRAY)
+        }
+
+        if frame_format in color_space_map:
+            converted_frames = color_space_map[frame_format]
         else:
             converted_frames = frames
 
         return converted_frames, converted_frames_rgb
+
 
     @staticmethod
     def _empty_frames():
