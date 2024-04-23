@@ -1,4 +1,5 @@
 import cv2
+import pprint
 
 class Camera:
     def __init__(self):
@@ -26,26 +27,36 @@ class Camera:
             frames = self.camera_feed.read()[1]
             frames = self._rotate_frame(frames, orientation)
             frames = self._flip_frames(frames, flip_direction)
+
             frames,rgb_frames = self._change_color_space(frames, frame_format)
-            processed_frames = frames
-            processed_frames_rgb = rgb_frames
+
+            processed_frames, processed_frames_rgb = frames, rgb_frames
 
             return processed_frames, processed_frames_rgb
         else:
             self._empty_frames()
 
+
+    def get_properties(self):
+        pprint.pprint(self.properties)
+
+
     @staticmethod
     def _rotate_frame(frames, orientation):
-        if orientation == "clockwise":
-            rotated_frames = cv2.rotate(frames, cv2.ROTATE_90_CLOCKWISE)
-        elif orientation == "180":
-            rotated_frames = cv2.rotate(frames, cv2.ROTATE_180)
-        elif orientation == "counter-clockwise":
-            rotated_frames = cv2.rotate(frames, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        rotation_map = {
+            "clockwise": cv2.ROTATE_90_CLOCKWISE,
+            "180": cv2.ROTATE_180,
+            "counter-clockwise": cv2.ROTATE_90_COUNTERCLOCKWISE
+        }
+
+        rotate_code = rotation_map.get(orientation)
+        if rotate_code is not None:
+            rotated_frames = cv2.rotate(frames, rotate_code)
         else:
             rotated_frames = frames
 
         return rotated_frames
+
 
     @staticmethod
     def _flip_frames(frames, flip_direction):
@@ -89,3 +100,13 @@ class Camera:
     @staticmethod
     def _empty_frames():
        raise RuntimeError("No frames were read from the camera. Please check your device.")
+
+
+
+def main():
+    webcam = Camera()
+    webcam.get_properties()
+
+
+if __name__ == "__main__":
+    main()
