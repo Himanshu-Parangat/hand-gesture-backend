@@ -38,7 +38,7 @@ class Camera:
 
 
     def get_properties(self):
-        pprint.pprint(self.properties)
+        pprint.pprint(self.properties) # TODO camera width/height needed to get 
 
 
     @staticmethod
