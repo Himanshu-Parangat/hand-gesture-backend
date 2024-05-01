@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, HTTPException
 import json
 
 
@@ -39,17 +39,18 @@ def get_default_config():
     return default_config
 
 
+
 @app.get("/server/config/default/{field}")
 def get_default_config_field(field: str):
     """
-    from default config get specific field
+    From default config get specific field
     """
-    field_entry = default_config.get(field, None)
+    field_entry = default_config.get(field)
+    if field_entry is None:
+        raise HTTPException(status_code=404, detail=f"no field with name {field}")
+    return {"value": field_entry}
 
-    if field_entry == None:
-        return f'{"message": "no field with name {field}"}'
 
-    return field_entry
 
 @app.get("/server/config/user")
 def get_user_config():
@@ -66,7 +67,6 @@ def get_user_config_field(field: str):
     """
     field_entry = user_config.get(field, None)
 
-    if field_entry == None:
-        return f'{"message": "no field with name {field}"}'
-
-    return field_entry
+    if field_entry is None:
+        raise HTTPException(status_code=404, detail=f"no field with name {field}")
+    return {"value": field_entry}
