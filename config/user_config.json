@@ -1,32 +1,5 @@
 {
-  # Server state options
-  "serverState": {
-    "options": [
-      "idle",
-      "start",
-      "stop",
-      "terminate"
-    ],
-    "default": "idle"  
-  },
-
-  # Hand tracking configuration
-  "handTracking": {
-    "use_static_mode": false,  # Live mode
-    "max_hands_count": 2,
-    "min_detection_threshold": 0.5,
-    "min_tracking_threshold": 0.5
-  },
-
-  # Frame configuration
-  "frames": {
-    "orientation": 0,  
-    "flip_direction": 0,  
-    "frame_format": "BGR"  
-  },
-
-  # Camera properties
-  "camera": {
+  "camera_properties": {
     "Default_Camera": 0,
     "FRAME_WIDTH": 640,
     "FRAME_HEIGHT": 480,
@@ -37,5 +10,17 @@
     "HUE": 13,
     "GAIN": 14,
     "EXPOSURE": 15
-  }
+  },
+  "frames": {
+    "orientation": 0,  
+    "flip_direction": 0,  
+    "frame_format": "BGR"  
+  },
+  "handTracking": {
+    "use_static_mode": false,
+    "max_hands_count": 2,
+    "min_detection_threshold": 0.5,
+    "min_tracking_threshold": 0.5
+  },
+  "serverState": ["idle","start","stop","terminate"]
 }

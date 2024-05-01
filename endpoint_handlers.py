@@ -1,47 +1,41 @@
-from fastapi import FastAPI, Path, Query 
-from config_handlers import default_config, FrameFormate, FrameOrientation, FrameFlip
+from fastapi import FastAPI, Body
+import json
 
 
 
 app = FastAPI()
 
+with open('./config/default_config.json', 'r') as file:
+    default_config = json.load(file)
 
-@app.get("/")
-async def root():
-    return {"message": "server under construction.."}
+with open('./config/user_config.json', 'r') as file:
+    user_config = json.load(file)
 
 
-@app.get("/server/defaultConfig")
-async def get_default_config():
+@app.get("/ping")
+async def status():
+    return {"status": "active"}
+
+
+@app.post("/ping")
+async def ping(data: dict = Body(...)):
+    """
+    Checks if client, is alive? and sending status at regular intervl
+
+    Raises a 422 Unprocessable Entity error if the request body is not a dictionary.
+    """
+
+    if data != {"status": "alive"}:
+        return {"message": "missing the ststus info in format  {'status': 'current status'}."}, 422
+
+    return {"message": "resetting the internal timer"}
+
+
+@app.get("/server/config/default")
+def get_default_config():
     return default_config
 
-
-@app.get("/server/defaultConfig/{field}")
-async def get_field(field: str = Path(description="the configration field")):
-    field_data = default_config.get(field, "unexpected option requsted")
-    return field_data
-
-
-
-@app.get("/server/config/")
-def get_config(
-    use_static_mode: bool = Query(False, description="enable static mode?"),  
-    max_hands_count: int =  Query(2, description="numer of max hands", ge=0, le=2),
-    min_detection_threshold: float = Query(0.5, description= "model minimum detection threshold", ge=0.0, le=1.0),
-    min_tracking_threshold: float = Query(0.5, description= "model minimum tracking threshold", ge=0.0, le=1.0),
-    orientation: FrameOrientation = Query(..., description="Frame orientation"),
-    flip: FrameFlip = Query(..., description="Frame flip"),
-    format: FrameFormate = Query(..., description="Frame format")
-
-    ):
-    user_config = {
-        "use_static_mode": use_static_mode,  # live-mode
-        "max_hands_count": max_hands_count,
-        "min_detection_threshold": min_detection_threshold,
-        "min_tracking_threshold": min_tracking_threshold,
-        "orientation": orientation,
-        "flip": flip,
-        "format": format
-    }
+@app.get("/server/config/user")
+def get_user_config():
     return user_config
 
