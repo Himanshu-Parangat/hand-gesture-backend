@@ -1,5 +1,7 @@
 from fastapi import FastAPI, Body, HTTPException
 import json
+from enum import Enum
+from config_handlers import config_options
 
 
 
@@ -26,13 +28,13 @@ async def ping(data: dict = Body(...)):
     """
 
     if data != {"status": "alive"}:
-        return {"message": "missing the ststus info in format  {'status': 'current status'}."}, 422
+        raise HTTPException(status_code=404, detail=f"expected format is  'status':'your status' ")
 
     return {"message": "resetting the internal timer"}
 
 
 @app.get("/server/config/default")
-def get_default_config():
+def get_default_config() -> dict: 
     """
     get the default stored config for the server
     """
@@ -41,19 +43,22 @@ def get_default_config():
 
 
 @app.get("/server/config/default/{field}")
-def get_default_config_field(field: str):
+def get_default_config_field(field: config_options) -> dict:
     """
     From default config get specific field
     """
-    field_entry = default_config.get(field)
+
+    field_entry = field.value
+    field_value = default_config.get(field_entry)
+
     if field_entry is None:
         raise HTTPException(status_code=404, detail=f"no field with name {field}")
-    return {"value": field_entry}
+    return {"entry": field_entry, "value": field_value}
 
 
 
 @app.get("/server/config/user")
-def get_user_config():
+def get_user_config() -> dict:
     """
     get the stored user config from the server
     """
@@ -61,12 +66,14 @@ def get_user_config():
 
 
 @app.get("/server/config/user/{field}")
-def get_user_config_field(field: str):
+def get_user_config_field(field: config_options) -> dict:
     """
     from user config get specific field
     """
-    field_entry = user_config.get(field, None)
+
+    field_entry = field.value
+    field_value = user_config.get(field_entry)
 
     if field_entry is None:
         raise HTTPException(status_code=404, detail=f"no field with name {field}")
-    return {"value": field_entry}
+    return {"entry": field_entry, "value": field_value}
