@@ -10,12 +10,6 @@ class ServerState(Enum):
     TERMINATE = "terminate"
 
 
-class config_options(str,Enum):
-    CAMERA_PROPERTIES = "camera_properties"
-    FRAMES = "frames"
-    HANDTRACKING = "handTracking"
-
-
 class HandTracking(BaseModel):
     USE_STATIC_MODE: bool   
     MAX_HANDS_COUNT: int  
@@ -71,10 +65,19 @@ class Camera_properties(BaseModel):
     EXPOSURE: int
 
 
+class config_options(str,Enum):
+    CAMERA_PROPERTIES = "camera_properties"
+    FRAMES = "frames"
+    HANDTRACKING = "handTracking"
+
+
 class base_config(BaseModel):
     handTracking: HandTracking
     frames: Frames
     camera_properties: Camera_properties 
+
+
+
 
 
 with open('./config/default_config.json', 'r') as file:
@@ -84,7 +87,9 @@ with open('./config/user_config.json', 'r') as file:
     user_config = json.load(file)
 
 
-config_model = base_config.model_validate(default_config)
+default_model = base_config(**default_config)
+
+user_model = base_config(**user_config)
 
 if __name__ == "__main__":
    print(default_config) 

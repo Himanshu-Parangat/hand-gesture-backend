@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Body, HTTPException
-from model_handlers import config_options
-from model_handlers import default_config, user_config
-from model_handlers import base_config, config_model
+from model_handlers import base_config, config_options
+from model_handlers import default_model, user_model
 
 
 app = FastAPI()
@@ -39,21 +38,15 @@ def get_user_config() -> base_config:
     """
     get the stored user config from the server
     """
-    return user_config
+    return user_model
 
 
 @app.get("/server/config/user/{field}")
-def get_user_config_field(field: config_options) -> dict:
+def get_user_config_field(field: config_options):
     """
     from user config get specific field
     """
-
-    field_entry = field.value
-    field_value = user_config.get(field_entry)
-
-    if field_entry is None:
-        raise HTTPException(status_code=404, detail=f"no field with name {field}")
-    return {"entry": field_entry, "value": field_value}
+    return getattr(user_model, field.value)
 
 
 @app.get("/server/config/default")
@@ -61,18 +54,12 @@ def get_default_config() -> base_config:
     """
     get the default stored config for the server
     """
-    return config_model
+    return default_model
 
 
 @app.get("/server/config/default/{field}")
-def get_default_config_field(field: config_options) -> dict:
+def get_default_config_field(field: config_options):
     """
     From default config get specific field
     """
-
-    field_entry = field.value
-    field_value = default_config.get(field_entry)
-
-    if field_entry is None:
-        raise HTTPException(status_code=404, detail=f"no field with name {field}")
-    return {"entry": field_entry, "value": field_value}
+    return getattr(default_model, field.value)
