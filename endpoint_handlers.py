@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Body, HTTPException
-from config_handlers import config_options
+from model_handlers import config_options
 from pydantic import BaseModel
-from config_handlers import default_config, user_config
+from model_handlers import default_config, user_config
 from enum import Enum
 
 
