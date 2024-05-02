@@ -13,8 +13,8 @@
   },
   "frames": {
     "ORIENTATION": "None",  
-    "FLIP_DIRECTION": "None",  
-    "FRAME_FORMAT": "BGR"  
+    "FLIP_DIRECTION": "horizontally",  
+    "FRAME_FORMAT": "GRAY"  
   },
   "handTracking": {
     "USE_STATIC_MODE": false,

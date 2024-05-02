@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Body, HTTPException
 from model_handlers import base_config, config_options
 from model_handlers import default_model, user_model
+from model_handlers import HandTracking, Frames, Camera_properties
 
 
 app = FastAPI()
@@ -42,7 +43,7 @@ def get_user_config() -> base_config:
 
 
 @app.get("/server/config/user/{field}")
-def get_user_config_field(field: config_options):
+def get_user_config_field(field: config_options) -> HandTracking|Frames|Camera_properties:
     """
     from user config get specific field
     """
@@ -58,7 +59,7 @@ def get_default_config() -> base_config:
 
 
 @app.get("/server/config/default/{field}")
-def get_default_config_field(field: config_options):
+def get_default_config_field(field: config_options) -> HandTracking|Frames|Camera_properties:
     """
     From default config get specific field
     """

@@ -39,6 +39,7 @@ class FrameFlip(str, Enum):
 class FrameFormat(str, Enum):
     """possible value: "None" "BGR" "RGB" "HSV" "HLS" "Gray" """
 
+    NONE = "None"
     BGR = "BGR"
     RGB = "RGB"
     HSV = "HSV"
@@ -77,19 +78,23 @@ class base_config(BaseModel):
     camera_properties: Camera_properties 
 
 
+def config_load(config_path):
+    with open(config_path, 'r') as file:
+        config_data = json.load(file)
+
+    return config_data 
+
+def model_gen(config_data):
+    config_model = base_config(**config_data)
+    return config_model
 
 
-
-with open('./config/default_config.json', 'r') as file:
-    default_config = json.load(file)
-
-with open('./config/user_config.json', 'r') as file:
-    user_config = json.load(file)
+default_config = config_load("./config/default_config.json") 
+user_config = config_load("./config/user_config.json") 
 
 
-default_model = base_config(**default_config)
-
-user_model = base_config(**user_config)
+default_model = model_gen(default_config) 
+user_model= model_gen(user_config) 
 
 if __name__ == "__main__":
    print(default_config) 
