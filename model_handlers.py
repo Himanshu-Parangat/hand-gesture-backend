@@ -1,6 +1,6 @@
 from enum import Enum
 from pydantic import BaseModel
-import json
+from config_handlers import default_config, user_config
 
 
 class ServerState(Enum):    
@@ -78,23 +78,10 @@ class base_config(BaseModel):
     camera_properties: Camera_properties 
 
 
-def config_load(config_path):
-    with open(config_path, 'r') as file:
-        config_data = json.load(file)
-
-    return config_data 
-
 def model_gen(config_data):
     config_model = base_config(**config_data)
     return config_model
 
 
-default_config = config_load("./config/default_config.json") 
-user_config = config_load("./config/user_config.json") 
-
-
 default_model = model_gen(default_config) 
 user_model= model_gen(user_config) 
-
-if __name__ == "__main__":
-   print(default_config) 
