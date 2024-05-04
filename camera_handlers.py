@@ -8,15 +8,6 @@ class Camera:
         self.camera_index = config("default_camera")
         self.camera_feed = cv2.VideoCapture(self.camera_index)
 
-        self.camera_feed.set(self.properties["FRAME_WIDTH"], config("frame_width"))
-        self.camera_feed.set(self.properties["FRAME_HEIGHT"], config("frame_height"))
-        self.camera_feed.set(self.properties["FPS"], config("fps"))
-        self.camera_feed.set(self.properties["BRIGHTNESS"], config("brightness"))
-        self.camera_feed.set(self.properties["CONTRAST"], config("contrast"))
-        self.camera_feed.set(self.properties["SATURATION"], config("saturation"))
-        self.camera_feed.set(self.properties["HUE"], config("hue"))
-        self.camera_feed.set(self.properties["GAIN"], config("gain"))
-        self.camera_feed.set(self.properties["EXPOSURE"], config("exposure"))
 
         self.properties = {
             'FRAME_WIDTH': cv2.CAP_PROP_FRAME_WIDTH,
@@ -29,6 +20,18 @@ class Camera:
             'GAIN': cv2.CAP_PROP_GAIN,
             'EXPOSURE': cv2.CAP_PROP_EXPOSURE
         }
+        
+
+        self.camera_feed.set(self.properties["FRAME_WIDTH"], config("frame_width"))
+        self.camera_feed.set(self.properties["FRAME_HEIGHT"], config("frame_height"))
+        self.camera_feed.set(self.properties["FPS"], config("fps"))
+        self.camera_feed.set(self.properties["BRIGHTNESS"], config("brightness"))
+        self.camera_feed.set(self.properties["CONTRAST"], config("contrast"))
+        self.camera_feed.set(self.properties["SATURATION"], config("saturation"))
+        self.camera_feed.set(self.properties["HUE"], config("hue"))
+        self.camera_feed.set(self.properties["GAIN"], config("gain"))
+        self.camera_feed.set(self.properties["EXPOSURE"], config("exposure"))
+
 
     def capture_frame(self, orientation, flip_direction, frame_format):
 

@@ -55,6 +55,13 @@ def config(field,config_model = "default_model"):
 
 
 if __name__ == "__main__":
+   # test
    print(config("frame_width", "default"))
-   # print(config("frame_format", "user"))
-   # print(config("frame_format", "invalid_model"))
+   print(type(config("use_static_mode")))
+   print(type(config("max_hands_count")))
+   print(type(config("min_detection_threshold")))
+   print(type(config("min_tracking_threshold")))
+   print(config("use_static_mode"))
+   print(config("max_hands_count"))
+   print(config("min_detection_threshold"))
+   print(config("min_tracking_threshold"))

@@ -6,10 +6,10 @@ class HandTracker:
     def __init__(self):
         self.hand_solution = mp.solutions.hands
         self.hands = self.hand_solution.Hands(
-            static_image_mode=config["use_static_mode"],
-            max_num_hands=config["max_hands_count"],
-            min_detection_confidence=config["min_detection_threshold"],
-            min_tracking_confidence=config["min_tracking_threshold"],
+            static_image_mode=config("use_static_mode"),
+            max_num_hands=config("max_hands_count"),
+            min_tracking_confidence=config("min_tracking_confidence"),
+            min_detection_confidence=config("min_detection_confidence"),
         )
 
     def landmark(self, rgb_frames):
@@ -92,5 +92,3 @@ class HandTracker:
         y_coordinates = int(hand_landmarks.y * frames.shape[0])
 
         return x_coordinates, y_coordinates
-
-

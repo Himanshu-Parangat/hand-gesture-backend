@@ -4,7 +4,6 @@ from camera_handlers import Camera
 from handtracker_handlers import HandTracker
 
 
-
 class ServerManager:
     def __init__(self) -> None:
         self.webcam = Camera()
@@ -14,7 +13,7 @@ class ServerManager:
     def process_cycle(self,state):
 
         while state:
-            frames,rgb_frames = self.webcam.capture_frame(config["orientation"], config["flip_direction"], config["frame_format"])
+            frames,rgb_frames = self.webcam.capture_frame(config("orientation"), config("flip_direction"), config("frame_format"))
 
             marks = self.handtracker.landmark(rgb_frames)
             print(marks)
@@ -30,8 +29,6 @@ class ServerManager:
             self.server_state = False
 
 
-
-
 class ProjectController:
     def __init__(self):
         self.should_run = True
@@ -42,15 +39,8 @@ class ProjectController:
             state = Server.server_state  
 
             Server.process_cycle(state)
-        
-
 
 
 if __name__ == "__main__":
     runner = ProjectController()
     runner.run()
-
-
-
-
-
