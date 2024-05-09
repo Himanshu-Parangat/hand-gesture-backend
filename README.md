@@ -5,13 +5,6 @@ to web applications via WebSockets. It allows developers to easily integrate
 hand detection functionality into their applications without the need to 
 implement complex computer vision algorithms themselves.
 
-## Features
-
-- Real-time hand detection using computer vision media
-- WebSocket-based communication for efficient and low-latency data transfer
-- Flexible and easy integration with web applications
-- Cross-platform compatibility (works on various operating systems and devices)
-
 
 ## Features
 
