@@ -1,9 +1,9 @@
 import cv2
 import uvicorn
 from threading import Thread
-from config_handlers import config
-from camera_handlers import Camera
-from handtracker_handlers import HandTracker
+from config.config_handlers import config 
+from detection.camera_handlers import Camera
+from detection.handtracker_handlers import HandTracker
 
 
 class ServerManager:

@@ -1,5 +1,5 @@
 import mediapipe as mp 
-from config_handlers import config
+from ..config.config_handlers import config
 
 
 class HandTracker:

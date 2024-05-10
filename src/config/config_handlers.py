@@ -8,9 +8,8 @@ def config_load(config_path):
     return config_data 
 
 
-default_config = config_load("./config/default_config.json") 
-user_config = config_load("./config/user_config.json") 
-
+default_config = config_load("./schema/default_config.json") 
+user_config = config_load("./schema/user_config.json") 
 
 def config(field,config_model = "default_model"):
 

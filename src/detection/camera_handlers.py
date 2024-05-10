@@ -1,6 +1,6 @@
 import cv2
 import pprint
-from config_handlers import config
+from ..config.config_handlers import config
 
 
 class Camera:
