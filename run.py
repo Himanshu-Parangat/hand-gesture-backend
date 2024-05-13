@@ -1,4 +1,5 @@
-from src.state_handlers import main
+from src import main
+import asyncio
 
 '''
 .
@@ -29,4 +30,7 @@ from src.state_handlers import main
 8 directories, 16 files
 '''
 
-main()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+

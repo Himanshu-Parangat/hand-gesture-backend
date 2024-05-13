@@ -1,9 +1,11 @@
+from asyncio import sleep
+import asyncio
 import cv2
-import uvicorn
-from threading import Thread
-from .config.config_handlers import config
-from .detection.camera_handlers import Camera
-from .detection.handtracker_handlers import HandTracker
+from time import sleep
+from datetime import datetime
+from configuration import config
+from tracking import Camera
+from tracking import HandTracker
 
 
 class ServerManager:
@@ -32,57 +34,31 @@ class ServerManager:
     def show_root_window(self, display_frames, window_name: str = "frames"):
         cv2.imshow(window_name, display_frames)
 
+def run_detection():
 
-class EndpointManager:
-    def __init__(self) -> None:
-        self.endpoint_state = True
-
-    def process_cycle(self, state):
-        while state:
-            uvicorn.run("endpoint_handlers:app", host="0.0.0.0", port=8000, reload=True)
-
-            break
+    detectin = ServerManager()
+    while True:
+        detectin.process_cycle(True)
 
 
-# class ProjectController:
-#     def __init__(self):
-#         self.should_run = True
-#
-#     def run(self):
-#
-#         Server = ServerManager()
-#         Endpoint = EndpointManager() 
-#
-#         while self.should_run:
-#             state = Server.server_state  
-#
-#             print("server in running")
-#             Server.process_cycle(state)
-#             Endpoint.process_cycle(state)
-#             break
+def log_info():
+    while True:
+        formatted_time = datetime.now().strftime("%H-%M-%S")
+        print(f"[{formatted_time}] Running backend...")
+        sleep(0.5)
 
-class ProjectController:
-    def __init__(self):
-        self.should_run = True
 
-    def run(self):
-        Server = ServerManager()
-        Endpoint = EndpointManager()
+async def main():
+    print("starting application...")
 
-        endpoint_thread = Thread(target=Endpoint.process_cycle, args=(Endpoint.endpoint_state,))
-        # server_thread = Thread(target=Server.process_cycle, args=(Server.server_state,))
+    while True:
+        # log_task = asyncio.create_task(log_info())
+        detection_task = asyncio.create_task(run_detection())
 
-        endpoint_thread.start()
-        # server_thread.start()
+        await asyncio.gather( detection_task)
 
-        endpoint_thread.join()
-        # server_thread.join()
 
 
 if __name__ == "__main__":
-    runner = ProjectController()
-    runner.run()
-
-def main():
-    print("starting application...")
+    asyncio.run(main())
 
