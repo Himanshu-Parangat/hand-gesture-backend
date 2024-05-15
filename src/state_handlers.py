@@ -3,9 +3,9 @@ import asyncio
 import cv2
 from time import sleep
 from datetime import datetime
-from configuration import config
-from tracking import Camera
-from tracking import HandTracker
+from src.configuration import config
+from src.tracking import Camera
+from src.tracking import HandTracker
 
 
 class ServerManager:
@@ -24,12 +24,11 @@ class ServerManager:
             print(marks)
             self.show_root_window(frames)
 
-            # Check for 'q' key press here
             key = cv2.waitKey(1) & 0xFF
             if key == ord("q"):
                 cv2.destroyAllWindows()
                 self.server_state = False
-                break  # Exit the loop
+                break
 
     def show_root_window(self, display_frames, window_name: str = "frames"):
         cv2.imshow(window_name, display_frames)
@@ -52,10 +51,10 @@ async def main():
     print("starting application...")
 
     while True:
-        # log_task = asyncio.create_task(log_info())
         detection_task = asyncio.create_task(run_detection())
+        log_task = asyncio.create_task(log_info())
 
-        await asyncio.gather( detection_task)
+        await asyncio.gather(detection_task, log_task)
 
 
 

@@ -1,1 +1,1 @@
-from .config_handlers import config 
+from .config_handlers import * 

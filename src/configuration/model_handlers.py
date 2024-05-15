@@ -1,6 +1,6 @@
 from enum import Enum
 from pydantic import BaseModel
-from config_handlers import default_config, user_config
+from .config_handlers import default_config, user_config
 
 
 class ServerState(Enum):    

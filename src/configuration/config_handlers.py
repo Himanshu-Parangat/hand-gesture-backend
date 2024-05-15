@@ -8,8 +8,8 @@ def config_load(config_path):
     return config_data 
 
 
-default_config = config_load("src/config/schema/default_config.json") 
-user_config = config_load("src/config/schema/user_config.json") 
+default_config = config_load("src/configuration/schema/default_config.json") 
+user_config = config_load("src/configuration/schema/user_config.json") 
 
 def config(field,config_model = "default_model"):
 
@@ -21,10 +21,10 @@ def config(field,config_model = "default_model"):
     model_use = config_model_map.get(config_model, "default_model")
 
     if model_use == "default_model":
-        from model_handlers import default_model
+        from .model_handlers import default_model
         config_model = default_model
     else:
-        from model_handlers import user_model
+        from .model_handlers import user_model
         config_model = user_model
 
 
