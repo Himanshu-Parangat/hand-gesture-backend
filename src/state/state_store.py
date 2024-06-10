@@ -42,6 +42,11 @@ def main():
 if __name__ == "__main__":
     main()
 
+from src.configuration import model_handlers
+
+import pprint
+
+pprint.pprint(model_handlers)
 
 # class StateController:
 #

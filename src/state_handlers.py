@@ -6,7 +6,8 @@ from datetime import datetime
 from src.configuration import config
 from src.tracking import Camera
 from src.tracking import HandTracker
-
+from src.endpoint.endpoint_handlers import app
+import uvicorn
 
 class ServerManager:
     def __init__(self) -> None:
@@ -46,16 +47,15 @@ def log_info():
         print(f"[{formatted_time}] Running backend...")
         sleep(0.5)
 
+def non_blocking_function():
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
-async def main():
+def main():
     print("starting application...")
 
     while True:
         detection_task = asyncio.create_task(run_detection())
         log_task = asyncio.create_task(log_info())
-
-        await asyncio.gather(detection_task, log_task)
-
 
 
 if __name__ == "__main__":

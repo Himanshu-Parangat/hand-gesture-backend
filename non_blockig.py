@@ -1,4 +1,5 @@
 from src import main
+from src.state_handlers import non_blocking_function
 import asyncio
 
 '''
@@ -32,6 +33,5 @@ import asyncio
 
 
 if __name__ == "__main__":
-    # asyncio.run(main())
-    main()
+    non_blocking_function()
 

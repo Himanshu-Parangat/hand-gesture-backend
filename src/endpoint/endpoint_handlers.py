@@ -1,7 +1,10 @@
 from fastapi import FastAPI, Body, HTTPException
-from ..config.model_handlers import base_config, config_options
-from ..config.model_handlers import HandTracking, Frames, Camera_properties 
-from ..config.model_handlers import default_model, user_model
+from src.configuration.model_handlers import base_config, config_options
+from src.configuration.model_handlers import HandTracking, Frames, Camera_properties
+from src.configuration.model_handlers import default_model, user_model
+# from ..config.model_handlers import base_config, config_options
+# from ..config.model_handlers import HandTracking, Frames, Camera_properties 
+# from ..config.model_handlers import default_model, user_model
 
 
 app = FastAPI()
