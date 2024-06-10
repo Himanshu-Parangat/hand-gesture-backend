@@ -20,24 +20,41 @@ implement complex computer vision algorithms themselves.
 ```bash
 .
 ├── LICENSE.md
+├── non_blockig.py
 ├── README.md
 ├── requirements.txt
+├── run.py
 ├── src
-│   ├── camera_handlers.py
-│   ├── config
-│   │   ├── default_config.json
-│   │   └── user_config.json
-│   ├── config_handlers.py
-│   ├── drawing_handlers.py
-│   ├── endpoint_handlers.py
-│   ├── handtracker_handlers.py
-│   ├── main.py
-│   ├── model_handlers.py
+│   ├── configuration
+│   │   ├── config_handlers.py
+│   │   ├── __init__.py
+│   │   ├── model_handlers.py
+│   │   └── schema
+│   │       ├── default_config.json
+│   │       └── user_config.json
+│   ├── endpoint
+│   │   ├── endpoint_handlers.py
+│   │   └── __init__.py
+│   ├── __init__.py
+│   ├── state
+│   │   ├── __init__.py
+│   │   ├── state.db
+│   │   └── state_store.py
 │   ├── state_handlers.py
-│   └── websockets_handlers.py
+│   ├── tracking
+│   │   ├── camera_handlers.py
+│   │   ├── drawing_handlers.py
+│   │   ├── handtracker_handlers.py
+│   │   └── __init__.py
+│   └── ws
+│       ├── __init__.py
+│       └── websockets_handlers.py
 └── test
+    ├── hooks.html
+    └── websoket.js
 
-4 directories, 14 files
+13 directories, 43 files (includ hidden)
+
 ```
 
 
