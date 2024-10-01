@@ -78,7 +78,5 @@ pip Install -r ./requirements.txt
 python3 main.py
 ```
 
-> project is kept on hold
-
 ### Todo's 
 import / mutiti threading issue 
